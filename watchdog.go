@@ -25,7 +25,7 @@ type SingleSheepMonitor struct {
 	once           *sync.Once
 }
 
-func (ssm *SingleSheepMonitor) Close() {
+func (ssm *SingleSheepMonitor) closeWather() {
 	println((*ssm.sheep).Name() + " watcher stopped")
 	ssm.once.Do(func() {
 		ssm.monitorStopped <- struct{}{}
@@ -46,10 +46,9 @@ func NewWatchDog() *WatchDog {
 	}
 }
 
-func (s *SingleSheepMonitor) Run() {
+func (s *SingleSheepMonitor) run() {
 	defer func() {
-
-		s.Close()
+		s.closeWather()
 	}()
 
 	for {
@@ -87,7 +86,7 @@ func (w *WatchDog) AddSheep(sheep Sheep) error {
 func (w *WatchDog) StartWatching(sheepName string) (chan struct{}, error) {
 	if v, ok := w.sheepfold.Load(sheepName); ok {
 		ssm := v.(*SingleSheepMonitor)
-		go ssm.Run()
+		go ssm.run()
 		return ssm.monitorStopped, nil
 	} else {
 		return nil, fmt.Errorf("shape %s has existed in this sheepfold ", sheepName)
@@ -106,14 +105,14 @@ func (w *WatchDog) RemoveSheep(sheepName Sheep) {
 	value, ok := w.sheepfold.Load(sheepName)
 	if ok {
 		ssm := value.(*SingleSheepMonitor)
-		ssm.Close()
+		ssm.closeWather()
 	}
 	w.sheepfold.Delete(sheepName)
 }
 
 func rangeCloseSingleSheepMonitor(_, singleSheepMonitor interface{}) bool {
 	ssm := singleSheepMonitor.(*SingleSheepMonitor)
-	ssm.Close()
+	ssm.closeWather()
 	return true
 }
 
