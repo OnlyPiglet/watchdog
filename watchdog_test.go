@@ -32,6 +32,43 @@ func (ms *MySheep) DeadTime() time.Duration {
 	return 5 * time.Second
 }
 
+func TestWatchDog_RemoveSheep(t *testing.T) {
+
+	dog := NewWatchDog()
+
+	sheep := MySheep{
+		food: make(chan struct{}, 1),
+		name: "my sheep",
+	}
+
+	getSheep, b := dog.GetSheep((&sheep).name)
+
+	println(fmt.Sprintf("%v", getSheep))
+	println(b)
+
+	err := dog.AddSheep(&sheep)
+	if err != nil {
+		panic(err)
+	}
+
+	getSheep, b = dog.GetSheep((&sheep).name)
+
+	println(fmt.Sprintf("%v", getSheep))
+	println(b)
+
+	dog.StartWatching((&sheep).name)
+
+	time.NewTicker(3 * time.Second)
+
+	dog.RemoveSheep(sheep.name)
+
+	getSheep, b = dog.GetSheep((&sheep).name)
+
+	println(fmt.Sprintf("%v", getSheep))
+	println(b)
+
+}
+
 func TestNewWatchDog(t *testing.T) {
 
 	dog := NewWatchDog()

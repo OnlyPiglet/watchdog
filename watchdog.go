@@ -101,7 +101,7 @@ func (w *WatchDog) GetSheep(sheepName string) (*SingleSheepMonitor, bool) {
 	return nil, ok
 }
 
-func (w *WatchDog) RemoveSheep(sheepName Sheep) {
+func (w *WatchDog) RemoveSheep(sheepName string) {
 	value, ok := w.sheepfold.Load(sheepName)
 	if ok {
 		ssm := value.(*SingleSheepMonitor)
