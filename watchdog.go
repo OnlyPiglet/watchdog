@@ -55,15 +55,14 @@ func (s *SingleSheepMonitor) run() {
 		select {
 		case <-s.ticker.C:
 			(*s.sheep).RunAway()
-			goto goaway
-		case <-s.food:
-			if (*s.sheep).Feed() != nil {
-				goto goaway
+			return
+		case _,ok := <-s.food:
+			if (*s.sheep).Feed() != nil || !ok {
+				return
 			}
 			s.ticker.Reset(s.deadtime)
 		}
 	}
-goaway:
 }
 
 func (w *WatchDog) AddSheep(sheep Sheep) error {
